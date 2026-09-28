@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Menu, User } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Logout } from "@/service/logout";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 const navItems = [
   {
@@ -70,6 +72,12 @@ const Navbar = ({ user }: NavbarProps) => {
       await Logout();
     }
   }
+
+  useEffect(() => {
+    if (!user.success) {
+      toast.success("User logged out successfull")
+    }
+  }, [user.success])
   return (
     <header className="border-b">
       <div className="container mx-auto flex h-16 items-center justify-between px-10">
