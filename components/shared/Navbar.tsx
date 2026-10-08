@@ -13,8 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Menu, User } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Logout } from "@/service/logout";
-import { useEffect } from "react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const navItems = [
   {
@@ -66,21 +66,21 @@ type NavbarProps = {
 }
 
 const Navbar = ({ user }: NavbarProps) => {
+
+  const router = useRouter();
+
   const handleUserMenuAction = async (action: string) => {
     console.log(action);
     if (action == "logout") {
       await Logout();
+      toast.success("User logged out successfull")
+      router.push("/login")
     }
   }
 
-  useEffect(() => {
-    if (!user.success) {
-      toast.success("User logged out successfull")
-    }
-  }, [user.success])
   return (
     <header className="border-b">
-      <div className="container mx-auto flex h-16 items-center justify-between px-10">
+      <div className="container mx-auto flex h-16  items-center justify-between px-10">
 
         {/* Logo */}
         <Link href="/" className="text-xl font-bold">
@@ -104,40 +104,46 @@ const Navbar = ({ user }: NavbarProps) => {
         <div className="flex items-center gap-2">
 
           {/* User Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <User className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
+          {
+            user.success ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel>{user.data?.profile.name || "Name"}</DropdownMenuLabel>
-              <DropdownMenuLabel>{user.data?.profile.email || "Email"}</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>{user.data?.profile.name || "Name"}</DropdownMenuLabel>
+                  <DropdownMenuLabel>{user.data?.profile.email || "Email"}</DropdownMenuLabel>
 
-              <DropdownMenuSeparator />
+                  <DropdownMenuSeparator />
 
-              <DropdownMenuItem asChild>
-                <Link href="/profile">Profile</Link>
-              </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem>
 
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard">Dashboard</Link>
-              </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard">Dashboard</Link>
+                  </DropdownMenuItem>
 
-              <DropdownMenuItem asChild>
-                <Link href="/settings">Settings</Link>
-              </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings">Settings</Link>
+                  </DropdownMenuItem>
 
-              <DropdownMenuSeparator />
+                  <DropdownMenuSeparator />
 
-              <DropdownMenuItem onClick={async () => {
-                await handleUserMenuAction("logout")
-              }}>
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <DropdownMenuItem onClick={async () => {
+                    await handleUserMenuAction("logout")
+                  }}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : <Link href={"/login"}>
+              <button className="cursor-pointer bg-green-500 px-4 py-1.5 rounded-xl text-white "  >Login</button>
+            </Link>
+          }
 
           {/* Mobile Menu */}
           <Sheet>
