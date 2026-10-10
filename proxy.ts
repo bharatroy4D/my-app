@@ -9,7 +9,7 @@ const PUBLIC_ROUTES = ["/", "/news"]
 export function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
     const accessToken = request.cookies.get("accessToken")?.value;
-    const decodedToken = accessToken ? Jwt.decode("accessToken") as JwtPayload : null;
+    const decodedToken = accessToken ? Jwt.decode(accessToken) as JwtPayload : null;
 
     let userRole = null;
 
@@ -28,12 +28,22 @@ export function proxy(request: NextRequest) {
             return NextResponse.redirect(new URL('/', request.url))
         }
     }
-
+// 
     const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'))
     const isAuthRoute = AUTH_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'))
-    
+
+    // Authenticated pages protection : Authorization is not handled yet
     if (!accessToken && !isPublicRoute && !isAuthRoute) {
         return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    // Authoraization : Role base access control
+    if (pathname.startsWith("/dashboard") && userRole !== "USER") {
+        return NextResponse.redirect(new URL('/not-found', request.url));
+    } else if (pathname.startsWith("/admin-dashboard") && userRole !== "ADMIN") {
+        return NextResponse.redirect(new URL('/not-found', request.url));
+    } else if (pathname.startsWith("/author-dashboard") && userRole !== "AUTHOR") {
+        return NextResponse.redirect(new URL('/not-found', request.url));
     }
 
     // return NextResponse.redirect(new URL('/', request.url))
